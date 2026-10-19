@@ -4,8 +4,8 @@ logging:
     enable: true
     level: INFO
     path: logs
-    rotation: "10 MB"
-    retention: "7 days"
+    rotation: "1 KB" # 文件的最大大小，超过大小自动创建新的文件
+    retention: "3 days" # 文件的有效期，过期自动删除
   console:
     enable: true
     level: INFO
