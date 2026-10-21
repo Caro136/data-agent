@@ -5,6 +5,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 from app.conf.meta_config import meta_config, TableConfig, MetricConfig
 from app.core.log import logger
+from app.models.es.value_info_es import ValueInfoES
 from app.models.mysql.column_info_mysql import ColumnInfoMySQL
 from app.models.mysql.column_metric_mysql import ColumnMetricMySQL
 from app.models.mysql.metric_info_mysql import MetricInfoMySQL
@@ -109,9 +110,34 @@ class MetaKnowledgeService:
 
     # 将字段值信息添加到es库建立全文索引
     async def _save_column_values_to_es(self, column_infos:list[ColumnInfoMySQL], tables:list[TableConfig]):
-        pass
+        # 通过tables来收集所有字段是否需要进行es索引的标识， dict[字段id,sync]
+        column_sync_dict:dict[str,bool] = {}
+        for table in tables:
+            for column in table.columns:
+                column_sync_dict[f"{table.name}.{column.name}"] = column.sync
 
+        # 遍历column_infos来收集字段值信息列表
+        value_infos:list[ValueInfoES] = []
+        for column_info in column_infos:
+            if column_sync_dict[column_info.id]:
+                # 查询当前字段的所有值，这里limit给10000为了保证都能查到，实际使用中需要根据情况进行调整
+                values:list = await self.dw_mysql_repository.get_column_values(column_info.table_id, column_info.name, limit=10000)
+                for value in values:
+                    value_infos.append(
+                        ValueInfoES(
+                            # 拼接字段值保证唯一性
+                            id=f"{column_info.id}.{value}",
+                            value=value,
+                            type=column_info.type,
+                            column_id=column_info.id,
+                            column_name=column_info.name,
+                            table_id=column_info.table_id,
+                            table_name=column_info.table_id
+                        )
+                    )
 
+        # 保存到es库
+        await self.value_es_repository.insert_value_infos(value_infos)
 
     # 将指标信息添加到meta库(metric_info表和column_metric表)
     async def _save_metric_infos_to_meta(self, metrics:list[MetricConfig])->list[MetricInfoMySQL]:
