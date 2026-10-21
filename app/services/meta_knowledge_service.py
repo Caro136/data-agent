@@ -1,6 +1,8 @@
 """
 构建元数据知识库的核心业务模块
 """
+import uuid
+
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from app.conf.meta_config import meta_config, TableConfig, MetricConfig
@@ -10,6 +12,8 @@ from app.models.mysql.column_info_mysql import ColumnInfoMySQL
 from app.models.mysql.column_metric_mysql import ColumnMetricMySQL
 from app.models.mysql.metric_info_mysql import MetricInfoMySQL
 from app.models.mysql.table_info_mysql import TableInfoMySQL
+from app.models.qdrant.column_info_qdrant import ColumnInfoQdrant
+from app.models.qdrant.metric_info_qdrant import MetricInfoQdrant
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.mysql.dw_mysql_repository import DWMysqlRepository
 from app.repositories.mysql.meta_mysql_repository import MetaMysqlRepository
@@ -106,7 +110,61 @@ class MetaKnowledgeService:
 
     # 将字段信息添加到qdrant建立向量索引
     async def _save_column_infos_to_qdrant(self, column_infos:list[ColumnInfoMySQL]):
-        pass
+        # 准备一个数组容器，存储一个字典对象（id, payload, 待向量化文本）
+        temp_list:list[dict] = []
+        # 遍历column_infos来收集ids,payloads,texts(name,description,alia)
+        for column_info in column_infos:
+            payload = ColumnInfoQdrant(
+                id=column_info.id,
+                name=column_info.name,
+                type=column_info.type,
+                role=column_info.role,
+                examples=column_info.examples,
+                description=column_info.description,
+                alias=column_info.alias,
+                table_id=column_info.table_id
+            )
+            # name
+            temp_list.append(
+                {
+                    "id": uuid.uuid4(),
+                    "payload": payload,
+                    "text": column_info.name
+                }
+            )
+            # description
+            temp_list.append(
+                {
+                    "id": uuid.uuid4(),
+                    "payload": payload,
+                    "text": column_info.description
+                }
+            )
+            # alias
+            for alia in column_info.alias:
+                temp_list.append(
+                    {
+                        "id": uuid.uuid4(),
+                        "payload": payload,
+                        "text": alia
+                    }
+                )
+        # 生成ids, payloads, texts
+        ids:list[str] = [item["id"] for item in temp_list]
+        payloads:list[ColumnInfoQdrant] = [item["payload"] for item in temp_list]
+        texts:list[str] = [item["text"] for item in temp_list]
+
+        # 取出所有待向量化的文本对其进行批量向量化（需要分批次处理），得到包含所有向量列表： vectors: list[list[float]]
+        batch_size = 16
+        vectors:list[list[float]] = []
+        for i in range(0, len(texts), batch_size):
+            batch_texts = texts[i:i+batch_size]
+            batch_vectors:list[list[float]] = await self.embedding_client.aembed_documents(batch_texts)
+            # 这里不能用append，否则会嵌套列表
+            vectors.extend(batch_vectors)
+
+        # 将数据插入qdrant数据库
+        await self.column_qdrant_repository.insert_column_vectors(ids, payloads, vectors)
 
     # 将字段值信息添加到es库建立全文索引
     async def _save_column_values_to_es(self, column_infos:list[ColumnInfoMySQL], tables:list[TableConfig]):
@@ -169,4 +227,54 @@ class MetaKnowledgeService:
 
     # 将指标信息添加到qdrant建立向量索引
     async def _save_metric_infos_to_qdrant(self, metric_infos:list[MetricInfoMySQL]):
-        pass
+        # 准备一个数组容器，存储一个字典对象（id, payload, 待向量化文本）
+        temp_list: list[dict] = []
+        # 遍历column_infos，创建一个字典对象，指定相应的属性，添加到数组中
+        for metric_info in metric_infos:
+            payload = MetricInfoQdrant(
+                id=metric_info.id,
+                name=metric_info.name,
+                description=metric_info.description,
+                relevant_columns=metric_info.relevant_columns,
+                alias=metric_info.alias
+            )
+            # name
+            temp_list.append(
+                {
+                    "id": uuid.uuid4(),
+                    "payload": payload,
+                    "text": metric_info.name
+                }
+            )
+            # description
+            temp_list.append(
+                {
+                    "id": uuid.uuid4(),
+                    "payload": payload,
+                    "text": metric_info.description
+                }
+            )
+            # alias
+            for alia in metric_info.alias:
+                temp_list.append(
+                    {
+                        "id": uuid.uuid4(),
+                        "payload": payload,
+                        "text": alia
+                    }
+                )
+        # 生成ids,payloads,texts
+        ids:list[str] = [item["id"] for item in temp_list]
+        payloads:list[MetricInfoQdrant] = [item["payload"] for item in temp_list]
+        texts:list[str] = [item["text"] for item in temp_list]
+        # 对待向量化的文本对其进行批量向量化（分批处理，批次大小取决于CPU和GPU参数），得到包含所有向量列表： vectors: list[list[float]]
+        batch_size = 16
+        vectors:list[list[float]] = []
+        for i in range(0, len(texts), batch_size):
+            batch_texts = texts[i:i+batch_size]
+            batch_vectors:list[list[float]] = await self.embedding_client.aembed_documents(batch_texts)
+            # 这里不能用append，否则会嵌套列表
+            vectors.extend(batch_vectors)
+
+        # 将数据插入qdrant数据库
+        await self.metric_qdrant_repository.insert_metric_vectors(ids, payloads, vectors)
