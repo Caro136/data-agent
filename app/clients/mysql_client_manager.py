@@ -38,27 +38,27 @@ class MysqlClientManager:
         await self.client.dispose()
 
 # 创建针对dw库的客户端管理器
-dw_msyql_client_manager = MysqlClientManager(app_config.db_dw)
+dw_mysql_client_manager = MysqlClientManager(app_config.db_dw)
 
 # 创建针对meta库的客户端管理器
-meta_msyql_client_manager = MysqlClientManager(app_config.db_meta)
+meta_mysql_client_manager = MysqlClientManager(app_config.db_meta)
 
 if __name__ == '__main__':
     # 查询dw2库中的dim_customer表中的数据
     # 不用orm,自己写sql执行
     async def test():
         # 初始化客户端
-        dw_msyql_client_manager.init_client()
+        dw_mysql_client_manager.init_client()
 
         # 进行数据库表数据的查询
         # 创建会话
         # async with AsyncSession(
-        #     dw_msyql_client_manager.client,
+        #     dw_mysql_client_manager.client,
         #     autobegin=True, # 自动开启事务  注意：事务需要手动提交或回滚
         #     autoflush=False, # 是否将未提交的更新同步/刷新到暂存区（后面的查询是否可见）
         # ) as session:
-        assert dw_msyql_client_manager.session_factory  # 断言有值
-        async with dw_msyql_client_manager.session_factory() as session:
+        assert dw_mysql_client_manager.session_factory  # 断言有值
+        async with dw_mysql_client_manager.session_factory() as session:
             # 执行sql
             sql = "select customer_name from dim_customer limit 2"
             result = await session.execute(text(sql))
@@ -90,16 +90,16 @@ if __name__ == '__main__':
 
 
         # 关闭客户端
-        await dw_msyql_client_manager.close()
+        await dw_mysql_client_manager.close()
 
     # 测试基于orm的添加和查询
     # 针meta2库中的table_info表进行测试
     async def test_orm():
 
-        meta_msyql_client_manager.init_client()
+        meta_mysql_client_manager.init_client()
 
-        assert meta_msyql_client_manager.session_factory
-        async with meta_msyql_client_manager.session_factory() as session:
+        assert meta_mysql_client_manager.session_factory
+        async with meta_mysql_client_manager.session_factory() as session:
 
             # 添加一条数据
             table_info1 = TableInfoMySQL(
@@ -141,15 +141,15 @@ if __name__ == '__main__':
             table_infos:list[TableInfoMySQL] = result.scalars().all()  # [row, row]
             print(table_infos)
 
-        await meta_msyql_client_manager.close()
+        await meta_mysql_client_manager.close()
 
     # 测试基于orm的更新和删除
     # 针meta2库中的table_info表进行测试
     async def test_orm2():
-        meta_msyql_client_manager.init_client()
+        meta_mysql_client_manager.init_client()
 
-        assert meta_msyql_client_manager.session_factory
-        async with meta_msyql_client_manager.session_factory() as session:
+        assert meta_mysql_client_manager.session_factory
+        async with meta_mysql_client_manager.session_factory() as session:
             # 更新
             table_info:TableInfoMySQL = await session.get(TableInfoMySQL, "dim_customer1")
             table_info.description = "aaa"
@@ -160,6 +160,6 @@ if __name__ == '__main__':
             # 提交事务
             await session.commit()
 
-        await meta_msyql_client_manager.close()
+        await meta_mysql_client_manager.close()
 
     asyncio.run(test_orm2())
