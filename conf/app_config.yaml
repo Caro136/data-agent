@@ -47,4 +47,4 @@ es:
 # llm的配置
 llm:
   model_name: deepseek-chat
-  api_key: <sk-dca2cdca618a4152957f66f567f9ae78>
+  api_key: sk-dca2cdca618a4152957f66f567f9ae78

@@ -3,7 +3,7 @@
 """
 import uuid
 
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 
 from app.conf.meta_config import meta_config, TableConfig, MetricConfig
 from app.core.log import logger
@@ -29,7 +29,7 @@ class MetaKnowledgeService:
         column_qdrant_repository: ColumnQdrantRepository,
         metric_qdrant_repository: MetricQdrantRepository,
         value_es_repository: ValueESRepository,
-        embedding_client:HuggingFaceEmbeddings
+        embedding_client:HuggingFaceEndpointEmbeddings
     ):
         self.dw_mysql_repository = dw_mysql_repository
         self.meta_mysql_repository = meta_mysql_repository
