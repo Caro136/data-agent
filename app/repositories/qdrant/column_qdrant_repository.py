@@ -53,3 +53,14 @@ class ColumnQdrantRepository:
                     ) for i in range(len(batch_ids))
                 ],
             )
+
+    # 搜索
+    async def search(self, keyword_vector:list[float])->list[ColumnInfoQdrant]:
+        result = await self.client.query_points(
+            collection_name=self.collection_name,
+            query=keyword_vector,
+            # 相似度得分最小值，需要反复测试来确定这个值
+            score_threshold=0.6
+        )
+        # 读取payload数据列表返回，这里需要将字典转换为对象，可以直接用解包，也可以手动进行转换
+        return [ColumnInfoQdrant(**point.payload) for point in result.points]

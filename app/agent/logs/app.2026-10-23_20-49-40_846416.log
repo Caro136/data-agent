@@ -1,0 +1,5 @@
+2026-10-23 20:49:40.843 | INFO     | request_id - aaa | app.agent.nodes.recall_column:recall_column:37 - recall_column llm keywords = ['销售区域', '销售金额', '统计时间']
+2026-10-23 20:49:40.931 | INFO     | request_id - aaa | app.agent.nodes.recall_metric:recall_metric:37 - recall_metric llm keywords = ['销售总金额', '销售金额', '销售额', '成交金额', 'GMV', '交易额']
+2026-10-23 20:49:43.155 | ERROR    | request_id - aaa | app.agent.nodes.recall_column:recall_column:56 - 召回字段失败, Cannot connect to host localhost:8081 ssl:default [远程计算机拒绝网络连接。]
+2026-10-23 20:50:53.412 | INFO     | request_id - aaa | app.agent.nodes.extract_keywords:extract_keywords:34 - jieba keywords = ['总金额', '华北地区', '销售']
+2026-10-23 20:50:53.426 | INFO     | request_id - aaa | app.agent.nodes.extract_keywords:extract_keywords:38 - 提取关键词成功, ['总金额', '销售', '华北地区销售总金额', '华北地区']

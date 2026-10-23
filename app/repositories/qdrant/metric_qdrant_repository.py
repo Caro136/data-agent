@@ -52,3 +52,12 @@ class MetricQdrantRepository:
                     ) for i in range(len(batch_ids))
                 ],
             )
+    # 搜索
+    async def search(self, keyword_vector: list[float])->list[MetricInfoQdrant]:
+        result = await self.client.query_points(
+            collection_name=self.collection_name,
+            query=keyword_vector,
+            score_threshold=0.6
+        )
+        # 读取payload数据列表返回，通过解包将字典转换为对象
+        return [MetricInfoQdrant(**point.payload) for point in result.points]

@@ -1,0 +1,2 @@
+2026-10-23 20:53:44.862 | INFO     | request_id - aaa | app.agent.nodes.recall_value:recall_value:47 - 召回字段值完成： [{'id': 'dim_region.region_name.华北', 'value': '华北', 'type': 'varchar(50)', 'column_id': 'dim_region.region_name', 'column_name': 'region_name', 'table_id': 'dim_region', 'table_name': 'dim_region'}]
+2026-10-23 20:53:45.177 | INFO     | request_id - aaa | app.agent.nodes.recall_metric:recall_metric:37 - recall_metric llm keywords = ['销售总金额', '销售金额', '销售额', '成交金额', 'GMV', '交易额']

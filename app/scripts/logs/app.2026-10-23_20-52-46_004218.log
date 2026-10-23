@@ -1,0 +1,7 @@
+2026-10-23 20:52:46.077 | INFO     | request_id - aaa | __main__:start_build:30 - 开始构建元数据知识库
+2026-10-23 20:52:47.207 | INFO     | request_id - aaa | app.services.meta_knowledge_service:build:52 - 开始构建元数据知识库
+2026-10-23 20:52:47.329 | INFO     | request_id - aaa | app.services.meta_knowledge_service:build:56 - 将所有表和字段的信息添加到meta库完成
+2026-10-23 20:52:57.334 | INFO     | request_id - aaa | app.services.meta_knowledge_service:build:59 - 将字段信息添加到qdrant建立向量索引完成
+2026-10-23 20:52:57.639 | INFO     | request_id - aaa | app.services.meta_knowledge_service:build:62 - 将字段值信息添加到es库建立全文索引完成
+2026-10-23 20:52:57.640 | INFO     | request_id - aaa | app.services.meta_knowledge_service:build:67 - 将指标信息添加到meta库完成
+2026-10-23 20:52:58.931 | INFO     | request_id - aaa | app.services.meta_knowledge_service:build:70 - 将指标信息添加到qdrant建立向量索引完成

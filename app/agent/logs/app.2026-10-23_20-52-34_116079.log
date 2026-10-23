@@ -1,0 +1,5 @@
+2026-10-23 20:52:34.114 | ERROR    | request_id - aaa | app.agent.nodes.recall_value:recall_value:51 - 召回字段值失败, NotFoundError(404, 'index_not_found_exception', 'no such index [data-agent-value-index2]', data-agent-value-index2, index_or_alias)
+2026-10-23 20:53:43.950 | INFO     | request_id - aaa | app.agent.nodes.extract_keywords:extract_keywords:34 - jieba keywords = ['总金额', '华北地区', '销售']
+2026-10-23 20:53:43.950 | INFO     | request_id - aaa | app.agent.nodes.extract_keywords:extract_keywords:38 - 提取关键词成功, ['销售', '总金额', '华北地区', '华北地区销售总金额']
+2026-10-23 20:53:44.506 | INFO     | request_id - aaa | app.agent.nodes.recall_column:recall_column:37 - recall_column llm keywords = ['销售区域', '销售金额', '统计时间']
+2026-10-23 20:53:44.814 | INFO     | request_id - aaa | app.agent.nodes.recall_value:recall_value:35 - recall_value llm keywords = ['华北地区']

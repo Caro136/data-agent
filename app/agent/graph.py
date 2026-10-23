@@ -60,7 +60,7 @@ state_graph.add_edge("filter_table", "add_extra_context")
 state_graph.add_edge("filter_metric", "add_extra_context")
 state_graph.add_edge("add_extra_context", "generate_sql")
 state_graph.add_edge("generate_sql", "validate_sql")
-# 添加推荐边
+# 添加条件边
 state_graph.add_conditional_edges(
     "validate_sql",
     lambda state: "execute_sql" if state.get("error") is None else "correct_sql",
@@ -73,7 +73,8 @@ state_graph.add_edge("execute_sql", END)
 compiled_graph = state_graph.compile()
 # 绘制图结构
 # print(compiled_graph.get_graph().draw_ascii()) # 需要安装依赖
-print(compiled_graph.get_graph().draw_mermaid())
+
+# print(compiled_graph.get_graph().draw_mermaid())
 
 # 执行测试
 if __name__ == '__main__':

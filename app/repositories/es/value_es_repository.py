@@ -68,3 +68,19 @@ class ValueESRepository:
             await self.client.bulk(
                 operations=operations
             )
+
+    # 搜索
+    async def search(self, keyword:str)->list[ValueInfoES]:
+        # 进行分词匹配查询
+        result = await self.client.search(
+            index=self.index_name,
+            # 根据value属性进行分词匹配查询
+            query={
+                "match": {
+                    "value": keyword
+                }
+            }
+        )
+
+        # 读取数据
+        return [ValueInfoES(**item["_source"]) for item in result["hits"]["hits"]]
