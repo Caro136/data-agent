@@ -21,3 +21,17 @@ class DWMysqlRepository:
         result = await self.session.execute(text(sql))
         # 获取单个字段用scalars()
         return result.scalars().all() # [val, val]
+
+    # 查询数据库信息 {"dialect": "mysql", "version": "1.2.3"}
+    async def get_db_info(self):
+        # 获取版本
+        sql = "select version()"
+        result = await self.session.execute(text(sql))
+        version = result.scalar()
+        # 获取当前数据库名称
+        # sql = "select database()"
+        # result = await self.session.execute(text(sql))
+        # database = result.scalar()
+        dialect = self.session.bind.dialect.name
+
+        return {"version":version, "dialect":dialect}

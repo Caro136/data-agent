@@ -27,6 +27,16 @@ class MetricInfoState(TypedDict):
     relevant_columns: list[str]
     alias: list[str]
 
+# 当前日期时间的状态信息
+class DateInfoState(TypedDict):
+    date: str # 年月日
+    weekday: str # 星期
+    quarter: str # 季度  Q1-Q4
+
+# 数据库信息
+class DBInfoState(TypedDict):
+    version: str # 版本号
+    dialect: str # 数据库名称
 
 # 自定义状态，继承类型字典，方便与json进行转换
 class DataAgentState(TypedDict):
@@ -35,9 +45,10 @@ class DataAgentState(TypedDict):
     sql:str # 生成sql
     error:str # 校验失败的错误信息
 
-    keywords:list[str] # 提取关键词列表
     recall_columns:list[ColumnInfoQdrant] # 召回字段信息列表
     recall_metrics:list[MetricInfoQdrant] # 召回指标信息列表
     recall_values:list[ValueInfoES] # 召回字段值信息列表
-    metric_infos:list[MetricInfoState] # 指标信息状态对象列表
-    table_infos:list[TableInfoState] # 合并3路召回产生的表和字段信息列表
+    metric_infos:list[MetricInfoState] # 合并产生的指标信息状态对象列表
+    table_infos:list[TableInfoState] # 合并3路召回产生的带字段信息列表的表信息列表
+    date_info:DateInfoState # 当前时期数据
+    db_info:DBInfoState # 数据库信息（名称和版本）
